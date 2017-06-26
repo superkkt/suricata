@@ -128,10 +128,6 @@ static SCMutex pfring_bpf_set_filter_lock = SCMUTEX_INITIALIZER;
 #define LIBPFRING_REENTRANT   0
 #define LIBPFRING_WAIT_FOR_INCOMING 1
 
-typedef enum {
-    PFRING_FLAGS_ZERO_COPY = 0x1
-} PfringThreadVarsFlags;
-
 /**
  * \brief Structure to hold thread specific variables.
  */
@@ -143,8 +139,6 @@ typedef struct PfringThreadVars_
     /* counters */
     uint64_t bytes;
     uint64_t pkts;
-
-    int flags;
 
     uint16_t capture_kernel_packets;
     uint16_t capture_kernel_drops;
@@ -661,6 +655,9 @@ TmEcode ReceivePfringThreadInit(ThreadVars *tv, void *initdata, void **data)
     if (active_runmode && strcmp("workers", active_runmode) == 0) {
         ptv->flags |= PFRING_FLAGS_ZERO_COPY;
         SCLogPerf("Enabling zero-copy for %s", ptv->interface);
+    } else {
+        ptv->flags |= PFRING_RING_PROTECT; /* FIXX mutexes should be avoided */
+        SCLogPerf("Enabling pf_ring protect for %s", ptv->interface);
     }
 
     ptv->checksum_mode = pfconf->checksum_mode;
@@ -776,11 +773,6 @@ TmEcode ReceivePfringThreadInit(ThreadVars *tv, void *initdata, void **data)
             ptv->tv);
     ptv->capture_kernel_drops = StatsRegisterCounter("capture.kernel_drops",
             ptv->tv);
-
-    char *active_runmode = RunmodeGetActive();
-
-    if (active_runmode && strcmp("workers", active_runmode) != 0)
-        ptv->flags |= PFRING_RING_PROTECT; /* FIXX mutexes should be avoided */
 
     /* A bit strange to have this here but we only have vlan information
      * during reading so we need to know if we want to keep vlan during
