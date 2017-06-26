@@ -62,6 +62,7 @@ enum PktSrcEnum {
 #include "source-pcap.h"
 #include "source-af-packet.h"
 #include "source-mpipe.h"
+#include "source-pfring.h"
 #include "source-netmap.h"
 
 #include "action-globals.h"
@@ -448,6 +449,9 @@ typedef struct Packet_
 #ifdef HAVE_MPIPE
         /* tilegx mpipe stuff */
         MpipePacketVars mpipe_v;
+#endif
+#ifdef HAVE_PFRING
+        PfringPacketVars pfring_v;
 #endif
 #ifdef HAVE_NETMAP
         NetmapPacketVars netmap_v;

@@ -399,6 +399,10 @@ void GlobalsDestroy(SCInstance *suri)
     AFPPeersListClean();
 #endif
 
+#ifdef HAVE_PFRING
+    PfringPeersListClean();
+#endif
+
     SC_ATOMIC_DESTROY(engine_stage);
 
 #ifdef BUILD_HYPERSCAN
@@ -875,6 +879,7 @@ int g_ut_covered;
 
 void RegisterAllModules()
 {
+
     /* commanders */
     TmModuleUnixManagerRegister();
     /* managers */
