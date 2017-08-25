@@ -1,3 +1,7 @@
+4.0.0.1 (2017-08-25)
+
+de3fe0438: Temporary patch to avoid the assertion due to invalid flow counter ID
+
 4.0.0 -- 2017-07-27
 
 Feature #2138: Create a sample systemd service file.
