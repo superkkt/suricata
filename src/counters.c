@@ -140,9 +140,12 @@ void StatsAddUI64(ThreadVars *tv, uint16_t id, uint64_t x)
     if (pca->initialized == 0)
         return;
 #endif
-#ifdef DEBUG
-    BUG_ON ((id < 1) || (id > pca->size));
-#endif
+
+    if ((id < 1) || (id > pca->size)) {
+	    SCLogDebug("skip to increase the flow counter due to invalid counter ID");
+	    return;
+    }
+
     pca->head[id].value += x;
     pca->head[id].updates++;
     return;
@@ -161,9 +164,12 @@ void StatsIncr(ThreadVars *tv, uint16_t id)
     if (pca->initialized == 0)
         return;
 #endif
-#ifdef DEBUG
-    BUG_ON ((id < 1) || (id > pca->size));
-#endif
+
+    if ((id < 1) || (id > pca->size)) {
+	    SCLogDebug("skip to increase the flow counter due to invalid counter ID");
+	    return;
+    }
+
     pca->head[id].value++;
     pca->head[id].updates++;
     return;
@@ -183,9 +189,11 @@ void StatsSetUI64(ThreadVars *tv, uint16_t id, uint64_t x)
     if (pca->initialized == 0)
         return;
 #endif
-#ifdef DEBUG
-    BUG_ON ((id < 1) || (id > pca->size));
-#endif
+
+    if ((id < 1) || (id > pca->size)) {
+	    SCLogDebug("skip to set the flow counter due to invalid counter ID");
+	    return;
+    }
 
     if ((pca->head[id].pc->type == STATS_TYPE_MAXIMUM) &&
             (x > pca->head[id].value)) {
@@ -1216,9 +1224,12 @@ int StatsUpdateCounterArray(StatsPrivateThreadContext *pca, StatsPublicThreadCon
 uint64_t StatsGetLocalCounterValue(ThreadVars *tv, uint16_t id)
 {
     StatsPrivateThreadContext *pca = &tv->perf_private_ctx;
-#ifdef DEBUG
-    BUG_ON ((id < 1) || (id > pca->size));
-#endif
+
+    if ((id < 1) || (id > pca->size)) {
+	    SCLogDebug("returns bogus zero value of the flow counter due to invalid counter ID");
+	    return 0;
+    }
+
     return pca->head[id].value;
 }
 
